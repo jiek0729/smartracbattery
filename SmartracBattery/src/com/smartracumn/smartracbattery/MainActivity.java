@@ -48,10 +48,8 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View view) {
 				if (service != null) {
-					// Toast.makeText(
-					// this,
-					// "Number of elements " + service.getRecords().size(),
-					// Toast.LENGTH_SHORT).show();
+					makeToastText("Number of elements "
+							+ service.getRecords().size());
 					recordList.clear();
 					recordList.addAll(service.getRecords());
 					adapter.notifyDataSetChanged();
@@ -65,6 +63,8 @@ public class MainActivity extends Activity {
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				if (service != null) {
+					makeToastText(service.getRecords().size()
+							+ "elements deleted");
 					// Toast.makeText(
 					// this,
 					// "Number of elements " + service.getRecords().size(),
@@ -78,6 +78,10 @@ public class MainActivity extends Activity {
 
 		lv.setAdapter(adapter);
 		// TODO Auto-generated method stub
+	}
+
+	private void makeToastText(String msg) {
+		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

@@ -24,7 +24,7 @@ public class SmartBatteryService extends Service {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
-			rawLevel = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+			rawLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 			scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 			status = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
 		}
