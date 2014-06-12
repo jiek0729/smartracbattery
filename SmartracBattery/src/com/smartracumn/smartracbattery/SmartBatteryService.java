@@ -1,6 +1,7 @@
 package com.smartracumn.smartracbattery;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +16,11 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class SmartBatteryService extends Service {
+
+	private interface DataSourceLoaded {
+		void dataLoaded(List<BatteryRecord> records);
+	}
+
 	private final String TAG = getClass().getSimpleName();
 	private final IBinder mBinder = new MyBinder();
 	private ArrayList<BatteryRecord> records = new ArrayList<BatteryRecord>();
@@ -33,6 +39,7 @@ public class SmartBatteryService extends Service {
 	private int rawLevel = -1;
 	private int scale = -1;
 	private int status = -1;
+	private DataSourceLoaded loaded;
 
 	@Override
 	public void onCreate() {
@@ -44,13 +51,18 @@ public class SmartBatteryService extends Service {
 				Intent.ACTION_BATTERY_CHANGED));
 	}
 
+	public void setLoadedCallBack(DataSourceLoaded callBack) {
+		this.loaded = callBack;
+	}
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		// TODO do something useful
 		Log.i(TAG, "service on start command.");
 		dataSource.open();
+		Calendar c = Calendar.getInstance();
 		if (rawLevel >= 0 && scale > 0) {
-			BatteryRecord record = dataSource.createComment(new Date(),
+			BatteryRecord record = dataSource.createComment(c.getTime(),
 					rawLevel * 100 / scale, status > 0);
 		}
 		dataSource.close();
@@ -67,6 +79,14 @@ public class SmartBatteryService extends Service {
 	public List<BatteryRecord> getRecords() {
 		dataSource.open();
 		List<BatteryRecord> records = dataSource.getAllRecords();
+		dataSource.close();
+		return records;
+	}
+
+	public List<BatteryRecord> getRecordsForDateRange(Date start, Date end) {
+		dataSource.open();
+		List<BatteryRecord> records = dataSource.getRecordsForDateRange(start,
+				end);
 		dataSource.close();
 		return records;
 	}

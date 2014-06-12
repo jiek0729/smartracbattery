@@ -10,15 +10,6 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/show_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="15dp"
-            android:text="Show" />
-
-        <Button
             android:id="@+id/delete_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -27,7 +18,29 @@
             android:layout_marginRight="15dp"
             android:text="Delete" />
 
+        <Button
+            android:id="@+id/show_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="Show" />
+
+        <Button
+            android:id="@+id/pick_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/pick_date" />
+
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/selected_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/grey"/>
 
     <ListView
         android:id="@+id/record_list"

@@ -1,16 +1,22 @@
 package com.smartracumn.smartracbattery;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+	private final String TAG = getClass().getSimpleName();
 
 	private SmartBatteryService service;
 
@@ -30,7 +37,13 @@ public class MainActivity extends Activity {
 
 	private List<BatteryRecord> recordList;
 
-	BatteryRecordArrayAdapter adapter;
+	private BatteryRecordArrayAdapter adapter;
+
+	private DialogFragment timePickerFragment;
+
+	private Date selectedDate;
+
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	/** Called when the activity is first created. */
 	@Override
@@ -40,6 +53,8 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main_activity);
 		recordList = new ArrayList<BatteryRecord>();
 		adapter = new BatteryRecordArrayAdapter(this, recordList);
+		timePickerFragment = new DialogFragment();
+		selectedDate = getCurrentDate();
 
 		ListView lv = (ListView) findViewById(R.id.record_list);
 		Button b = (Button) findViewById(R.id.show_all);
@@ -48,10 +63,10 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View view) {
 				if (service != null) {
-					makeToastText("Number of elements "
-							+ service.getRecords().size());
+					List<BatteryRecord> records = service.getRecords();
+					makeToastText("Number of elements " + records.size());
 					recordList.clear();
-					recordList.addAll(service.getRecords());
+					recordList.addAll(records);
 					adapter.notifyDataSetChanged();
 				}
 			}
@@ -65,14 +80,20 @@ public class MainActivity extends Activity {
 				if (service != null) {
 					makeToastText(service.getRecords().size()
 							+ "elements deleted");
-					// Toast.makeText(
-					// this,
-					// "Number of elements " + service.getRecords().size(),
-					// Toast.LENGTH_SHORT).show();
 					recordList.clear();
 					service.deleteRecords();
 					adapter.notifyDataSetChanged();
 				}
+			}
+		});
+		Button p = (Button) findViewById(R.id.pick_date);
+		p.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				DialogFragment newFragment = new DatePickerFragment();
+				newFragment.show(MainActivity.this.getFragmentManager(),
+						"datePicker");
 			}
 		});
 
@@ -82,6 +103,24 @@ public class MainActivity extends Activity {
 
 	private void makeToastText(String msg) {
 		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+	}
+
+	public void setSelectedDate(Date date) {
+		selectedDate = date;
+		TextView tv = (TextView) findViewById(R.id.selected_date);
+		tv.setText(dateFormat.format(date));
+		if (service != null) {
+			Calendar calendar = Calendar.getInstance(TimeZone
+					.getTimeZone("UTC"));
+			calendar.setTime(date);
+			calendar.add(Calendar.DATE, 1);
+			Date end = calendar.getTime();
+			List<BatteryRecord> records = service.getRecordsForDateRange(date,
+					end);
+			recordList.clear();
+			recordList.addAll(records);
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	@Override
@@ -97,6 +136,44 @@ public class MainActivity extends Activity {
 		unbindService(mConnection);
 	}
 
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		super.onSaveInstanceState(savedInstanceState);
+		// Save UI state changes to the savedInstanceState.
+		// This bundle will be passed to onCreate if the process is
+		// killed and restarted.
+		Log.i(TAG,
+				"Save Instance State: selected date: "
+						+ dateFormat.format(selectedDate));
+		savedInstanceState.putString("selectedDate",
+				dateFormat.format(selectedDate));
+		// etc.
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		Log.i(TAG, "Restore Instance State.");
+		// Restore UI state from the savedInstanceState.
+		// This bundle has also been passed to onCreate.
+		try {
+			selectedDate = dateFormat.parse(savedInstanceState
+					.getString("selectedDate"));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			selectedDate = getCurrentDate();
+		}
+	}
+
+	private Date getCurrentDate() {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		return c.getTime();
+	}
+
 	private ServiceConnection mConnection = new ServiceConnection() {
 
 		public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -104,6 +181,7 @@ public class MainActivity extends Activity {
 			service = b.getService();
 			Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT)
 					.show();
+			setSelectedDate(selectedDate);
 		}
 
 		public void onServiceDisconnected(ComponentName className) {

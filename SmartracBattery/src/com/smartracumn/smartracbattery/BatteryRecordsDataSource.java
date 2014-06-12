@@ -39,6 +39,7 @@ public class BatteryRecordsDataSource {
 
 	public BatteryRecord createComment(Date time, int percentage,
 			boolean isCharging) {
+		Log.i(TAG, "Add record for " + iso8601Format.format(time));
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_PERCENTAGE, percentage);
 		values.put(MySQLiteHelper.COLUMN_TIME, iso8601Format.format(time));
@@ -64,6 +65,29 @@ public class BatteryRecordsDataSource {
 	public void deleteAll() {
 		Log.i(TAG, "Records deleted");
 		database.delete(MySQLiteHelper.TABLE_BATTERY_RECORDS, null, null);
+	}
+
+	public List<BatteryRecord> getRecordsForDateRange(Date start, Date end) {
+
+		Log.i(TAG, "Get records for " + iso8601Format.format(start) + " - "
+				+ iso8601Format.format(end));
+		List<BatteryRecord> records = new ArrayList<BatteryRecord>();
+
+		Cursor cursor = database.query(MySQLiteHelper.TABLE_BATTERY_RECORDS,
+				allColumns, MySQLiteHelper.COLUMN_TIME + " BETWEEN \""
+						+ iso8601Format.format(start) + "\" AND \""
+						+ iso8601Format.format(end) + "\"", null, null, null,
+				null);
+
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			BatteryRecord record = cursorToBatteryRecord(cursor);
+			records.add(record);
+			cursor.moveToNext();
+		}
+		// make sure to close the cursor
+		cursor.close();
+		return records;
 	}
 
 	public List<BatteryRecord> getAllRecords() {
