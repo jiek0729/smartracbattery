@@ -51,6 +51,12 @@ public class SmartBatteryService extends Service {
 				Intent.ACTION_BATTERY_CHANGED));
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.unregisterReceiver(mBatInfoReceiver);
+	}
+
 	public void setLoadedCallBack(DataSourceLoaded callBack) {
 		this.loaded = callBack;
 	}

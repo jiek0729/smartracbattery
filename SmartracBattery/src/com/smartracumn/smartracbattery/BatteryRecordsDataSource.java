@@ -17,7 +17,7 @@ public class BatteryRecordsDataSource {
 
 	// Database fields
 	private final String TAG = getClass().getSimpleName();
-	private SimpleDateFormat iso8601Format = new SimpleDateFormat(
+	private final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
@@ -39,10 +39,10 @@ public class BatteryRecordsDataSource {
 
 	public BatteryRecord createComment(Date time, int percentage,
 			boolean isCharging) {
-		Log.i(TAG, "Add record for " + iso8601Format.format(time));
+		Log.i(TAG, "Add record for " + ISO8601FORMAT.format(time));
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_PERCENTAGE, percentage);
-		values.put(MySQLiteHelper.COLUMN_TIME, iso8601Format.format(time));
+		values.put(MySQLiteHelper.COLUMN_TIME, ISO8601FORMAT.format(time));
 		values.put(MySQLiteHelper.COLUMN_ISCHARGING, isCharging ? 1 : 0);
 		long insertId = database.insert(MySQLiteHelper.TABLE_BATTERY_RECORDS,
 				null, values);
@@ -69,14 +69,14 @@ public class BatteryRecordsDataSource {
 
 	public List<BatteryRecord> getRecordsForDateRange(Date start, Date end) {
 
-		Log.i(TAG, "Get records for " + iso8601Format.format(start) + " - "
-				+ iso8601Format.format(end));
+		Log.i(TAG, "Get records for " + ISO8601FORMAT.format(start) + " - "
+				+ ISO8601FORMAT.format(end));
 		List<BatteryRecord> records = new ArrayList<BatteryRecord>();
 
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_BATTERY_RECORDS,
 				allColumns, MySQLiteHelper.COLUMN_TIME + " BETWEEN \""
-						+ iso8601Format.format(start) + "\" AND \""
-						+ iso8601Format.format(end) + "\"", null, null, null,
+						+ ISO8601FORMAT.format(start) + "\" AND \""
+						+ ISO8601FORMAT.format(end) + "\"", null, null, null,
 				null);
 
 		cursor.moveToFirst();
@@ -113,7 +113,7 @@ public class BatteryRecordsDataSource {
 		String dateString = cursor.getString(1);
 		Date time = null;
 		try {
-			time = iso8601Format.parse(dateString);
+			time = ISO8601FORMAT.parse(dateString);
 		} catch (ParseException e) {
 			time = null;
 		}

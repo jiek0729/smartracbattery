@@ -15,8 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_marginRight="15dp"
-            android:text="Delete" />
+            android:text="@string/delete_all" />
 
         <Button
             android:id="@+id/show_all"
@@ -24,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:text="Show" />
+            android:text="@string/show_all" />
 
         <Button
             android:id="@+id/pick_date"
@@ -36,11 +35,30 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/selected_date"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/grey"/>
+        android:layout_height="wrap_content" 
+            android:background="@color/grey" >
+
+        <Button
+            android:id="@+id/export_button"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/export" />
+
+        <TextView
+            android:id="@+id/selected_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:textColor="@color/date_color"
+            android:textSize="@dimen/large_text" />
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/record_list"

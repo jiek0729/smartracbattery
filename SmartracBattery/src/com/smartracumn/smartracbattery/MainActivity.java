@@ -1,5 +1,9 @@
 package com.smartracumn.smartracbattery;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -98,7 +103,78 @@ public class MainActivity extends Activity {
 		});
 
 		lv.setAdapter(adapter);
+
+		Button e = (Button) findViewById(R.id.export_button);
+		e.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// Create DirectoryChooserDialog and register a callback
+				DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(
+						MainActivity.this,
+						new DirectoryChooserDialog.ChosenDirectoryListener() {
+
+							@Override
+							public void onChosenDir(String chosenDir) {
+								File dir = new File(chosenDir);
+
+								File file = new File(dir, "smartracBattery-"
+										+ dateFormat.format(selectedDate)
+										+ ".txt");
+
+								if (!file.exists()) {
+									try {
+										file.createNewFile();
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+
+								if (writeToFile(file)) {
+									Toast.makeText(
+											MainActivity.this,
+											file.getName()
+													+ " created in directory: "
+													+ chosenDir,
+											Toast.LENGTH_LONG).show();
+								} else {
+									Toast.makeText(MainActivity.this,
+											"File NOT created",
+											Toast.LENGTH_LONG).show();
+								}
+
+							}
+						});
+				// Load directory chooser dialog for initial 'm_chosenDir'
+				// directory.
+				// The registered callback will be called upon final directory
+				// selection.
+				directoryChooserDialog.chooseDirectory(Environment
+						.getExternalStorageDirectory().getPath());
+			}
+		});
 		// TODO Auto-generated method stub
+	}
+
+	private boolean writeToFile(File file) {
+		try {
+			// If file does not exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileWriter fw = new FileWriter(file.getPath());
+			BufferedWriter bw = new BufferedWriter(fw);
+			for (BatteryRecord record : recordList) {
+				bw.write(record.toString());
+				bw.write(System.getProperty("line.separator"));
+			}
+			bw.close();
+			Log.i(TAG, "Write file sucess");
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	private void makeToastText(String msg) {

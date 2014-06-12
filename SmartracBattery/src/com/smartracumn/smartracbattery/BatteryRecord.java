@@ -1,5 +1,6 @@
 package com.smartracumn.smartracbattery;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class BatteryRecord {
@@ -7,6 +8,8 @@ public class BatteryRecord {
 	private Date time;
 	private int percentage;
 	private boolean isCharging;
+	private final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss");
 
 	public BatteryRecord(int id, Date time, int percentage, boolean isCharging) {
 		this.id = id;
@@ -33,7 +36,7 @@ public class BatteryRecord {
 
 	@Override
 	public String toString() {
-		return this.time.toString() + ": " + this.percentage + "% "
-				+ "is charging: " + this.isCharging;
+		return ISO8601FORMAT.format(this.time) + ": " + this.percentage + "% "
+				+ (this.isCharging ? "plugged" : "unplugged");
 	}
 }
