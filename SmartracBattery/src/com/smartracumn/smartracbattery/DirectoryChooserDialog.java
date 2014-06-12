@@ -207,7 +207,7 @@ public class DirectoryChooserDialog {
 		m_titleView.setTextAppearance(m_context,
 				android.R.style.TextAppearance_Large);
 		m_titleView.setTextColor(m_context.getResources().getColor(
-				android.R.color.white));
+				android.R.color.black));
 		m_titleView.setGravity(Gravity.CENTER_VERTICAL
 				| Gravity.CENTER_HORIZONTAL);
 		m_titleView.setText(title);
@@ -215,7 +215,7 @@ public class DirectoryChooserDialog {
 		Button newDirButton = new Button(m_context);
 		newDirButton.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
 				LayoutParams.WRAP_CONTENT));
-		newDirButton.setText("New folder");
+		newDirButton.setText("New Folder");
 		newDirButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

@@ -19,7 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -145,12 +144,8 @@ public class MainActivity extends Activity {
 
 							}
 						});
-				// Load directory chooser dialog for initial 'm_chosenDir'
-				// directory.
-				// The registered callback will be called upon final directory
-				// selection.
-				directoryChooserDialog.chooseDirectory(Environment
-						.getExternalStorageDirectory().getPath());
+
+				directoryChooserDialog.chooseDirectory();
 			}
 		});
 		// TODO Auto-generated method stub
