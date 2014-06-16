@@ -45,7 +45,11 @@ public class RecordListFragment extends Fragment {
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
+		Log.i(TAG, getClass().getSimpleName() + ":entered onActivityCreated()");
 		super.onActivityCreated(savedInstanceState);
+		adapter = new BatteryRecordArrayAdapter(getActivity(), this.recordList);
+		ListView lv = (ListView) getView().findViewById(R.id.record_list);
+		lv.setAdapter(adapter);
 	}
 
 	public void notifyDataSetChanged() {
@@ -55,9 +59,6 @@ public class RecordListFragment extends Fragment {
 	@Override
 	public void onStart() {
 		Log.i(TAG, getClass().getSimpleName() + ":entered onStart()");
-		adapter = new BatteryRecordArrayAdapter(getActivity(), this.recordList);
-		ListView lv = (ListView) getView().findViewById(R.id.record_list);
-		lv.setAdapter(adapter);
 		super.onStart();
 	}
 
@@ -110,6 +111,11 @@ public class RecordListFragment extends Fragment {
 			super(context, R.layout.item, values);
 			this.context = context;
 			this.values = values;
+		}
+
+		@Override
+		public boolean isEnabled(int position) {
+			return false;
 		}
 
 		@Override

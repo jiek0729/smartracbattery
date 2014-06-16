@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.TimeZone;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -132,6 +134,34 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	private void onDeleteAllAction() {
+		new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.delete_all)
+				.setMessage(R.string.really_delete)
+				.setPositiveButton(R.string.yes,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+
+								// Stop the activity
+								deleteAllRecords();
+							}
+
+						}).setNegativeButton(R.string.no, null).show();
+	}
+
+	private void deleteAllRecords() {
+		if (service != null) {
+			makeToastText(service.getRecords().size() + "elements deleted");
+			recordList.clear();
+			service.deleteRecords();
+			recordListFragment.notifyDataSetChanged();
+		}
+	}
+
 	private void openFileBrowser() {
 		DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(
 				MainActivity.this,
@@ -230,6 +260,9 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.action_export:
 			openFileBrowser();
+			return true;
+		case R.id.action_delete_all:
+			onDeleteAllAction();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

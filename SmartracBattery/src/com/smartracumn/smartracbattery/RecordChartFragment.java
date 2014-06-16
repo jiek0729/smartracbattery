@@ -58,17 +58,18 @@ public class RecordChartFragment extends Fragment {
 		graphView.getGraphViewStyle().setVerticalLabelsColor(Color.RED);
 		graphView.getGraphViewStyle().setNumHorizontalLabels(5);
 		graphView.getGraphViewStyle().setNumVerticalLabels(4);
-		graphView.getGraphViewStyle().setVerticalLabelsWidth(80);
+		graphView.getGraphViewStyle().setVerticalLabelsWidth(70);
 
 		graphView.setCustomLabelFormatter(new CustomLabelFormatter() {
 			@Override
 			public String formatLabel(double value, boolean isValueX) {
 				if (isValueX) {
 					Date date = new Date((long) value);
-					return String.valueOf(date.getHours());
+					return String.valueOf(date.getHours()) + ":"
+							+ String.valueOf(date.getMinutes());
+				} else {
+					return String.valueOf((int) Math.round(value)) + "%";
 				}
-
-				return null; // let graphview generate Y-axis label for us
 			}
 		});
 
