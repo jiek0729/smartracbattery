@@ -5,11 +5,12 @@
     <string name="date">Date</string>
     <string name="show_all">Show All</string>
     <string name="delete_all">Delete All</string>
+    <string name="delete_older">Delete Older Records</string>
     <string name="export">Export To File</string>
     <string name="list_view">List</string>
     <string name="chart_view">Chart</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="really_delete">Are you sure you want to delete all records? This action can not be undone.</string>
+    <string name="really_delete">Are you sure you want to delete older records? This action can not be undone.</string>
 
 </resources>

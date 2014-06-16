@@ -184,7 +184,15 @@ public class MainActivity extends Activity {
 
 	private void updateRecords(List<BatteryRecord> records) {
 		recordList.clear();
-		recordList.addAll(records);
+		for (BatteryRecord record : records) {
+			if (recordList.size() == 0
+					|| recordList.get(recordList.size() - 1).getPercentage() != record
+							.getPercentage()
+					|| recordList.get(recordList.size() - 1).isCharging() != record
+							.isCharging()) {
+				recordList.add(record);
+			}
+		}
 		makeToastText("Number of Records " + records.size());
 		recordListFragment.notifyDataSetChanged();
 		recordChartFragment.notifyDataSetChanged();
@@ -288,12 +296,17 @@ public class MainActivity extends Activity {
 			Date time = newRecord.getTime();
 			if (time.getYear() == selectedDate.getYear()
 					&& time.getMonth() == selectedDate.getMonth()
-					&& time.getDate() == selectedDate.getDate()) {
-				makeToastText("New record");
+					&& time.getDate() == selectedDate.getDate()
+					&& (recordList.get(recordList.size() - 1).getPercentage() != newRecord
+							.getPercentage() || recordList.get(
+							recordList.size() - 1).isCharging() != newRecord
+							.isCharging())) {
+				makeToastText("New record inserted");
 				MainActivity.this.recordList.add(newRecord);
 				recordListFragment.notifyDataSetChanged();
 				recordChartFragment.notifyDataSetChanged();
 			}
+
 		}
 	};
 
@@ -327,19 +340,28 @@ public class MainActivity extends Activity {
 		}
 
 		protected void onPostExecute(Boolean params) {
-			recordList.clear();
-			recordListFragment.notifyDataSetChanged();
-			recordChartFragment.notifyDataSetChanged();
 			if (params) {
-				makeToastText("All records deleted");
+				// recordList.clear();
+				// recordListFragment.notifyDataSetChanged();
+				// recordChartFragment.notifyDataSetChanged();
+
+				makeToastText("Records older than " + offset + " is deleted");
 			}
 		}
+
+		private String offset;
 
 		@Override
 		protected Boolean doInBackground(Void... params) {
 			// TODO Auto-generated method stub
 			if (service != null) {
-				service.deleteRecords();
+				Calendar c = Calendar.getInstance();
+				c.setTime(selectedDate);
+				c.set(Calendar.HOUR, 0);
+				c.set(Calendar.MINUTE, 0);
+				c.set(Calendar.MILLISECOND, 0);
+				offset = dateFormat.format(c.getTime());
+				service.deletePrevRecords(c.getTime());
 				return true;
 			}
 

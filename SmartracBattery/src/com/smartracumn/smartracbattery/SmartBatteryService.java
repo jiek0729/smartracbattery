@@ -110,6 +110,12 @@ public class SmartBatteryService extends Service {
 		dataSource.close();
 	}
 
+	public void deletePrevRecords(Date date) {
+		dataSource.open();
+		dataSource.deletePrevRecord(date);
+		dataSource.close();
+	}
+
 	public class MyBinder extends Binder {
 		SmartBatteryService getService() {
 			return SmartBatteryService.this;

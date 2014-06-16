@@ -66,6 +66,17 @@ public class BatteryRecordsDataSource {
 		close();
 	}
 
+	public void deletePrevRecord(Date date) {
+		Log.i(TAG, "Record older than " + ISO8601FORMAT.format(date)
+				+ " deleted");
+		open();
+		database.delete(
+				MySQLiteHelper.TABLE_BATTERY_RECORDS,
+				MySQLiteHelper.COLUMN_TIME + " < \""
+						+ ISO8601FORMAT.format(date) + "\"", null);
+		close();
+	}
+
 	public void deleteAll() {
 		Log.i(TAG, "Records deleted");
 		open();
