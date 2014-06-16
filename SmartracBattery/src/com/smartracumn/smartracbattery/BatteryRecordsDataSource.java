@@ -25,10 +25,6 @@ public class BatteryRecordsDataSource {
 			MySQLiteHelper.COLUMN_TIME, MySQLiteHelper.COLUMN_PERCENTAGE,
 			MySQLiteHelper.COLUMN_ISCHARGING };
 
-	public interface DataSourceLoaded {
-		void dataLoaded(List<BatteryRecord> records);
-	}
-
 	public BatteryRecordsDataSource(Context context) {
 		dbHelper = new MySQLiteHelper(context);
 	}

@@ -21,6 +21,11 @@ public class SmartBatteryService extends Service {
 	private final IBinder mBinder = new MyBinder();
 	private ArrayList<BatteryRecord> records = new ArrayList<BatteryRecord>();
 	private BatteryRecordsDataSource dataSource;
+	private OnRecordUpdate updateCallBack;
+
+	public interface OnRecordUpdate {
+		void OnRecordInserted(BatteryRecord newRecord);
+	}
 
 	private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
 		@Override
@@ -60,6 +65,9 @@ public class SmartBatteryService extends Service {
 		if (rawLevel >= 0 && scale > 0) {
 			BatteryRecord record = dataSource.createComment(c.getTime(),
 					rawLevel * 100 / scale, status > 0);
+			if (updateCallBack != null) {
+				updateCallBack.OnRecordInserted(record);
+			}
 		}
 		return Service.START_NOT_STICKY;
 	}
@@ -84,6 +92,16 @@ public class SmartBatteryService extends Service {
 		dataSource.close();
 
 		return records;
+	}
+
+	public void registerUpdateListener(OnRecordUpdate callback) {
+		this.updateCallBack = callback;
+	}
+
+	public void unregisterUpdateListener(OnRecordUpdate callback) {
+		if (callback.equals(this.updateCallBack)) {
+			this.updateCallBack = null;
+		}
 	}
 
 	public void deleteRecords() {

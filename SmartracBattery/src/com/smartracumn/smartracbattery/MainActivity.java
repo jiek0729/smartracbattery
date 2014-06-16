@@ -35,6 +35,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.smartracumn.smartracbattery.SmartBatteryService.OnRecordUpdate;
+
 public class MainActivity extends Activity {
 	private final String TAG = getClass().getSimpleName();
 
@@ -167,38 +169,6 @@ public class MainActivity extends Activity {
 		directoryChooserDialog.chooseDirectory();
 	}
 
-	// private void exportFinished(boolean success) {
-	// if (success) {
-	// Toast.makeText(MainActivity.this,
-	// file.getName() + " created in directory: " + chosenDir,
-	// Toast.LENGTH_LONG).show();
-	// } else {
-	// Toast.makeText(MainActivity.this, "File NOT created",
-	// Toast.LENGTH_LONG).show();
-	// }
-	// }
-
-	private boolean writeToFile(File file) {
-		try {
-			// If file does not exists, then create it
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-			FileWriter fw = new FileWriter(file.getPath());
-			BufferedWriter bw = new BufferedWriter(fw);
-			for (BatteryRecord record : recordList) {
-				bw.write(record.toString());
-				bw.write(System.getProperty("line.separator"));
-			}
-			bw.close();
-			Log.i(TAG, "Write file sucess");
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
 	private void makeToastText(String msg) {
 		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 	}
@@ -215,7 +185,7 @@ public class MainActivity extends Activity {
 	private void updateRecords(List<BatteryRecord> records) {
 		recordList.clear();
 		recordList.addAll(records);
-		makeToastText("Number of elements " + records.size());
+		makeToastText("Number of Records " + records.size());
 		recordListFragment.notifyDataSetChanged();
 		recordChartFragment.notifyDataSetChanged();
 	}
@@ -299,13 +269,31 @@ public class MainActivity extends Activity {
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			SmartBatteryService.MyBinder b = (SmartBatteryService.MyBinder) binder;
 			service = b.getService();
+			service.registerUpdateListener(updateCallback);
 			Toast.makeText(MainActivity.this, "Connected", Toast.LENGTH_SHORT)
 					.show();
 			setSelectedDate(selectedDate);
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
+			service.unregisterUpdateListener(updateCallback);
 			service = null;
+		}
+	};
+
+	private OnRecordUpdate updateCallback = new OnRecordUpdate() {
+
+		@Override
+		public void OnRecordInserted(BatteryRecord newRecord) {
+			Date time = newRecord.getTime();
+			if (time.getYear() == selectedDate.getYear()
+					&& time.getMonth() == selectedDate.getMonth()
+					&& time.getDate() == selectedDate.getDate()) {
+				makeToastText("New record");
+				MainActivity.this.recordList.add(newRecord);
+				recordListFragment.notifyDataSetChanged();
+				recordChartFragment.notifyDataSetChanged();
+			}
 		}
 	};
 
