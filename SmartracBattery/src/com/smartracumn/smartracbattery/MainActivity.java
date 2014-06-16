@@ -14,6 +14,7 @@ import java.util.TimeZone;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,13 +22,9 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,14 +33,13 @@ public class MainActivity extends Activity {
 
 	private SmartBatteryService service;
 
-	private SimpleDateFormat iso8601Format = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
-
-	private List<BatteryRecord> recordList;
-
-	private BatteryRecordArrayAdapter adapter;
+	protected List<BatteryRecord> recordList;
 
 	private DialogFragment timePickerFragment;
+
+	private RecordListFragment recordListFragment;
+
+	private RecordChartFragment recordChartFragment;
 
 	private Date selectedDate;
 
@@ -56,11 +52,30 @@ public class MainActivity extends Activity {
 
 		setContentView(R.layout.main_activity);
 		recordList = new ArrayList<BatteryRecord>();
-		adapter = new BatteryRecordArrayAdapter(this, recordList);
 		timePickerFragment = new DialogFragment();
+		recordListFragment = new RecordListFragment();
+		recordChartFragment = new RecordChartFragment();
 		selectedDate = getCurrentDate();
 
-		ListView lv = (ListView) findViewById(R.id.record_list);
+		if (savedInstanceState == null) {
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+			ft.add(R.id.content, recordListFragment).commit();
+		}
+
+		Button c = (Button) findViewById(R.id.chart_button);
+		c.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// FragmentTransaction ft = getFragmentManager()
+				// .beginTransaction();
+				// ft.replace(R.id.content, recordChartFragment);
+				//
+				// ft.commit();
+			}
+		});
+
 		Button b = (Button) findViewById(R.id.show_all);
 		b.setOnClickListener(new OnClickListener() {
 
@@ -71,7 +86,7 @@ public class MainActivity extends Activity {
 					makeToastText("Number of elements " + records.size());
 					recordList.clear();
 					recordList.addAll(records);
-					adapter.notifyDataSetChanged();
+					recordListFragment.notifyDataSetChanged();
 				}
 			}
 		});
@@ -86,7 +101,7 @@ public class MainActivity extends Activity {
 							+ "elements deleted");
 					recordList.clear();
 					service.deleteRecords();
-					adapter.notifyDataSetChanged();
+					recordListFragment.notifyDataSetChanged();
 				}
 			}
 		});
@@ -100,8 +115,6 @@ public class MainActivity extends Activity {
 						"datePicker");
 			}
 		});
-
-		lv.setAdapter(adapter);
 
 		Button e = (Button) findViewById(R.id.export_button);
 		e.setOnClickListener(new OnClickListener() {
@@ -190,7 +203,7 @@ public class MainActivity extends Activity {
 					end);
 			recordList.clear();
 			recordList.addAll(records);
-			adapter.notifyDataSetChanged();
+			recordListFragment.notifyDataSetChanged();
 		}
 	}
 
@@ -259,35 +272,4 @@ public class MainActivity extends Activity {
 			service = null;
 		}
 	};
-
-	public class BatteryRecordArrayAdapter extends ArrayAdapter<BatteryRecord> {
-		private final Context context;
-		private final List<BatteryRecord> values;
-
-		public BatteryRecordArrayAdapter(Context context,
-				List<BatteryRecord> values) {
-			super(context, R.layout.item, values);
-			this.context = context;
-			this.values = values;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			LayoutInflater inflater = (LayoutInflater) context
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View rowView = inflater.inflate(R.layout.item, parent, false);
-			TextView timeView = (TextView) rowView.findViewById(R.id.time);
-			TextView percentageView = (TextView) rowView
-					.findViewById(R.id.percentage);
-			TextView chargingView = (TextView) rowView
-					.findViewById(R.id.is_charging);
-			timeView.setText(iso8601Format.format(values.get(position)
-					.getTime()));
-			percentageView.setText(values.get(position).getPercentage() + "%");
-			chargingView.setText(values.get(position).isCharging() ? "Charging"
-					: "Unpluged");
-
-			return rowView;
-		}
-	}
 }
