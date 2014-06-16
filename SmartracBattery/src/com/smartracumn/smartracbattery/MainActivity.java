@@ -22,11 +22,15 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class MainActivity extends Activity {
 	private final String TAG = getClass().getSimpleName();
@@ -63,48 +67,59 @@ public class MainActivity extends Activity {
 			ft.add(R.id.content, recordListFragment).commit();
 		}
 
+		attachCallbacks();
+	}
+
+	private void attachCallbacks() {
 		Button c = (Button) findViewById(R.id.chart_button);
 		c.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// FragmentTransaction ft = getFragmentManager()
-				// .beginTransaction();
-				// ft.replace(R.id.content, recordChartFragment);
-				//
-				// ft.commit();
-			}
-		});
+				ToggleButton b = (ToggleButton) v;
+				FragmentTransaction ft = getFragmentManager()
+						.beginTransaction();
 
-		Button b = (Button) findViewById(R.id.show_all);
-		b.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View view) {
-				if (service != null) {
-					List<BatteryRecord> records = service.getRecords();
-					makeToastText("Number of elements " + records.size());
-					recordList.clear();
-					recordList.addAll(records);
-					recordListFragment.notifyDataSetChanged();
+				if (b.isChecked()) {
+					ft.replace(R.id.content, recordChartFragment);
+				} else {
+					ft.replace(R.id.content, recordListFragment);
 				}
-			}
-		});
-		Button d = (Button) findViewById(R.id.delete_all);
-		d.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				if (service != null) {
-					makeToastText(service.getRecords().size()
-							+ "elements deleted");
-					recordList.clear();
-					service.deleteRecords();
-					recordListFragment.notifyDataSetChanged();
-				}
+				ft.commit();
 			}
 		});
+
+		// Button b = (Button) findViewById(R.id.show_all);
+		// b.setOnClickListener(new OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View view) {
+		// if (service != null) {
+		// List<BatteryRecord> records = service.getRecords();
+		// makeToastText("Number of elements " + records.size());
+		// recordList.clear();
+		// recordList.addAll(records);
+		// recordListFragment.notifyDataSetChanged();
+		// }
+		// }
+		// });
+		// Button d = (Button) findViewById(R.id.delete_all);
+		// d.setOnClickListener(new OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View arg0) {
+		// // TODO Auto-generated method stub
+		// if (service != null) {
+		// makeToastText(service.getRecords().size()
+		// + "elements deleted");
+		// recordList.clear();
+		// service.deleteRecords();
+		// recordListFragment.notifyDataSetChanged();
+		// }
+		// }
+		// });
+
 		Button p = (Button) findViewById(R.id.pick_date);
 		p.setOnClickListener(new OnClickListener() {
 
@@ -115,53 +130,45 @@ public class MainActivity extends Activity {
 						"datePicker");
 			}
 		});
+	}
 
-		Button e = (Button) findViewById(R.id.export_button);
-		e.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// Create DirectoryChooserDialog and register a callback
-				DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(
-						MainActivity.this,
-						new DirectoryChooserDialog.ChosenDirectoryListener() {
+	private void openFileBrowser() {
+		DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(
+				MainActivity.this,
+				new DirectoryChooserDialog.ChosenDirectoryListener() {
 
-							@Override
-							public void onChosenDir(String chosenDir) {
-								File dir = new File(chosenDir);
+					@Override
+					public void onChosenDir(String chosenDir) {
+						File dir = new File(chosenDir);
 
-								File file = new File(dir, "smartracBattery-"
-										+ dateFormat.format(selectedDate)
-										+ ".txt");
+						File file = new File(dir, "smartracBattery-"
+								+ dateFormat.format(selectedDate) + ".txt");
 
-								if (!file.exists()) {
-									try {
-										file.createNewFile();
-									} catch (IOException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								}
-
-								if (writeToFile(file)) {
-									Toast.makeText(
-											MainActivity.this,
-											file.getName()
-													+ " created in directory: "
-													+ chosenDir,
-											Toast.LENGTH_LONG).show();
-								} else {
-									Toast.makeText(MainActivity.this,
-											"File NOT created",
-											Toast.LENGTH_LONG).show();
-								}
-
+						if (!file.exists()) {
+							try {
+								file.createNewFile();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						});
+						}
 
-				directoryChooserDialog.chooseDirectory();
-			}
-		});
-		// TODO Auto-generated method stub
+						if (writeToFile(file)) {
+							Toast.makeText(
+									MainActivity.this,
+									file.getName() + " created in directory: "
+											+ chosenDir, Toast.LENGTH_LONG)
+									.show();
+						} else {
+							Toast.makeText(MainActivity.this,
+									"File NOT created", Toast.LENGTH_LONG)
+									.show();
+						}
+
+					}
+				});
+
+		directoryChooserDialog.chooseDirectory();
 	}
 
 	private boolean writeToFile(File file) {
@@ -203,7 +210,29 @@ public class MainActivity extends Activity {
 					end);
 			recordList.clear();
 			recordList.addAll(records);
+			makeToastText("Number of elements " + records.size());
 			recordListFragment.notifyDataSetChanged();
+			recordChartFragment.notifyDataSetChanged();
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main_activity_actions, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+		case R.id.action_export:
+			openFileBrowser();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
 	}
 

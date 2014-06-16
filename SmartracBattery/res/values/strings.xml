@@ -2,9 +2,11 @@
 
     <string name="app_name">SmartracBattery</string>
     <string name="service_name">Smart Battery Service</string>
-    <string name="pick_date">Pick Date</string>
+    <string name="date">Date</string>
     <string name="show_all">Show All</string>
     <string name="delete_all">Delete All</string>
-    <string name="export">Export</string>
+    <string name="export">Export To File</string>
+    <string name="list_view">List</string>
+    <string name="chart_view">Chart</string>
 
 </resources>

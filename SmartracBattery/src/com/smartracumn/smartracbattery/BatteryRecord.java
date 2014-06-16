@@ -3,11 +3,14 @@ package com.smartracumn.smartracbattery;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.jjoe64.graphview.GraphView.GraphViewData;
+
 public class BatteryRecord {
 	private int id;
 	private Date time;
 	private int percentage;
 	private boolean isCharging;
+	private GraphViewData graphViewData;
 	private final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 
@@ -38,5 +41,14 @@ public class BatteryRecord {
 	public String toString() {
 		return ISO8601FORMAT.format(this.time) + ": " + this.percentage + "% "
 				+ (this.isCharging ? "plugged" : "unplugged");
+	}
+
+	public GraphViewData getGraphViewData() {
+		if (this.graphViewData == null) {
+			this.graphViewData = new GraphViewData(this.time.getTime(),
+					this.percentage);
+		}
+
+		return this.graphViewData;
 	}
 }

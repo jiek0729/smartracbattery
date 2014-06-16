@@ -7,23 +7,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/delete_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:text="@string/delete_all" />
-
-        <Button
-            android:id="@+id/show_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/show_all" />
+        android:layout_height="wrap_content" 
+        android:background="@color/grey">
 
         <Button
             android:id="@+id/pick_date"
@@ -31,41 +16,26 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:text="@string/pick_date" />
+            android:text="@string/date" />
 
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-            android:background="@color/grey" >
-
-        <Button
-            android:id="@+id/export_button"
-            style="?android:attr/buttonStyleSmall"
+        <ToggleButton
+            android:id="@+id/chart_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:text="@string/export" />
+            android:textOn="@string/chart_view"
+            android:textOff="@string/list_view"
+            android:checked="false"
+            />
 
         <TextView
             android:id="@+id/selected_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
             android:textColor="@color/date_color"
             android:textSize="@dimen/large_text" />
-
-        <Button
-            android:id="@+id/chart_button"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/export_button"
-            android:text="Chart" />
 
     </RelativeLayout>
 
