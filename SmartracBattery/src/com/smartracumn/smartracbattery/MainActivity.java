@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -106,21 +107,6 @@ public class MainActivity extends Activity {
 		// }
 		// }
 		// });
-		// Button d = (Button) findViewById(R.id.delete_all);
-		// d.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View arg0) {
-		// // TODO Auto-generated method stub
-		// if (service != null) {
-		// makeToastText(service.getRecords().size()
-		// + "elements deleted");
-		// recordList.clear();
-		// service.deleteRecords();
-		// recordListFragment.notifyDataSetChanged();
-		// }
-		// }
-		// });
 
 		Button p = (Button) findViewById(R.id.pick_date);
 		p.setOnClickListener(new OnClickListener() {
@@ -147,19 +133,10 @@ public class MainActivity extends Activity {
 									int which) {
 
 								// Stop the activity
-								deleteAllRecords();
+								new DeleteRecordsTask().execute();
 							}
 
 						}).setNegativeButton(R.string.no, null).show();
-	}
-
-	private void deleteAllRecords() {
-		if (service != null) {
-			makeToastText(service.getRecords().size() + "elements deleted");
-			recordList.clear();
-			service.deleteRecords();
-			recordListFragment.notifyDataSetChanged();
-		}
 	}
 
 	private void openFileBrowser() {
@@ -183,23 +160,23 @@ public class MainActivity extends Activity {
 							}
 						}
 
-						if (writeToFile(file)) {
-							Toast.makeText(
-									MainActivity.this,
-									file.getName() + " created in directory: "
-											+ chosenDir, Toast.LENGTH_LONG)
-									.show();
-						} else {
-							Toast.makeText(MainActivity.this,
-									"File NOT created", Toast.LENGTH_LONG)
-									.show();
-						}
-
+						new ExportTask().execute(file);
 					}
 				});
 
 		directoryChooserDialog.chooseDirectory();
 	}
+
+	// private void exportFinished(boolean success) {
+	// if (success) {
+	// Toast.makeText(MainActivity.this,
+	// file.getName() + " created in directory: " + chosenDir,
+	// Toast.LENGTH_LONG).show();
+	// } else {
+	// Toast.makeText(MainActivity.this, "File NOT created",
+	// Toast.LENGTH_LONG).show();
+	// }
+	// }
 
 	private boolean writeToFile(File file) {
 		try {
@@ -231,19 +208,16 @@ public class MainActivity extends Activity {
 		TextView tv = (TextView) findViewById(R.id.selected_date);
 		tv.setText(dateFormat.format(date));
 		if (service != null) {
-			Calendar calendar = Calendar.getInstance(TimeZone
-					.getTimeZone("UTC"));
-			calendar.setTime(date);
-			calendar.add(Calendar.DATE, 1);
-			Date end = calendar.getTime();
-			List<BatteryRecord> records = service.getRecordsForDateRange(date,
-					end);
-			recordList.clear();
-			recordList.addAll(records);
-			makeToastText("Number of elements " + records.size());
-			recordListFragment.notifyDataSetChanged();
-			recordChartFragment.notifyDataSetChanged();
+			new LoadRecordsTask().execute(date);
 		}
+	}
+
+	private void updateRecords(List<BatteryRecord> records) {
+		recordList.clear();
+		recordList.addAll(records);
+		makeToastText("Number of elements " + records.size());
+		recordListFragment.notifyDataSetChanged();
+		recordChartFragment.notifyDataSetChanged();
 	}
 
 	@Override
@@ -334,4 +308,101 @@ public class MainActivity extends Activity {
 			service = null;
 		}
 	};
+
+	private class LoadRecordsTask extends
+			AsyncTask<Date, Integer, List<BatteryRecord>> {
+
+		protected void onProgressUpdate(Integer... progress) {
+			setProgress(progress[0]);
+		}
+
+		protected void onPostExecute(List<BatteryRecord> records) {
+			updateRecords(records);
+		}
+
+		@Override
+		protected List<BatteryRecord> doInBackground(Date... params) {
+			// TODO Auto-generated method stub
+			Calendar calendar = Calendar.getInstance(TimeZone
+					.getTimeZone("UTC"));
+			calendar.setTime(params[0]);
+			calendar.add(Calendar.DATE, 1);
+			Date end = calendar.getTime();
+			return service.getRecordsForDateRange(params[0], end);
+		}
+	}
+
+	private class DeleteRecordsTask extends AsyncTask<Void, Integer, Boolean> {
+
+		protected void onProgressUpdate(Integer... progress) {
+			super.onProgressUpdate(progress);
+		}
+
+		protected void onPostExecute(Boolean params) {
+			recordList.clear();
+			recordListFragment.notifyDataSetChanged();
+			recordChartFragment.notifyDataSetChanged();
+			if (params) {
+				makeToastText("All records deleted");
+			}
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			if (service != null) {
+				service.deleteRecords();
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	private class ExportTask extends AsyncTask<File, Integer, Boolean> {
+
+		protected void onProgressUpdate(Integer... progress) {
+			super.onProgressUpdate(progress);
+		}
+
+		protected void onPostExecute(Boolean params) {
+			if (params) {
+				Toast.makeText(MainActivity.this,
+						file + " created in directory: " + dir,
+						Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(MainActivity.this, "Unable to create file",
+						Toast.LENGTH_LONG).show();
+			}
+		}
+
+		private String file;
+		private String dir;
+
+		@Override
+		protected Boolean doInBackground(File... params) {
+			// TODO Auto-generated method stub
+			file = params[0].getName();
+			dir = params[0].getParent();
+
+			try {
+				// If file does not exists, then create it
+				if (!params[0].exists()) {
+					params[0].createNewFile();
+				}
+				FileWriter fw = new FileWriter(params[0].getPath());
+				BufferedWriter bw = new BufferedWriter(fw);
+				for (BatteryRecord record : recordList) {
+					bw.write(record.toString());
+					bw.write(System.getProperty("line.separator"));
+				}
+				bw.close();
+				Log.i(TAG, "Write file sucess");
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+	}
 }

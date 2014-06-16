@@ -25,6 +25,10 @@ public class BatteryRecordsDataSource {
 			MySQLiteHelper.COLUMN_TIME, MySQLiteHelper.COLUMN_PERCENTAGE,
 			MySQLiteHelper.COLUMN_ISCHARGING };
 
+	public interface DataSourceLoaded {
+		void dataLoaded(List<BatteryRecord> records);
+	}
+
 	public BatteryRecordsDataSource(Context context) {
 		dbHelper = new MySQLiteHelper(context);
 	}
@@ -40,6 +44,7 @@ public class BatteryRecordsDataSource {
 	public BatteryRecord createComment(Date time, int percentage,
 			boolean isCharging) {
 		Log.i(TAG, "Add record for " + ISO8601FORMAT.format(time));
+		open();
 		ContentValues values = new ContentValues();
 		values.put(MySQLiteHelper.COLUMN_PERCENTAGE, percentage);
 		values.put(MySQLiteHelper.COLUMN_TIME, ISO8601FORMAT.format(time));
@@ -52,27 +57,34 @@ public class BatteryRecordsDataSource {
 		cursor.moveToFirst();
 		BatteryRecord newRecord = cursorToBatteryRecord(cursor);
 		cursor.close();
+		close();
 		return newRecord;
 	}
 
 	public void deleteRecord(BatteryRecord record) {
 		long id = record.getId();
 		Log.i(TAG, "Record deleted with id: " + id);
+		open();
 		database.delete(MySQLiteHelper.TABLE_BATTERY_RECORDS,
 				MySQLiteHelper.COLUMN_ID + " = " + id, null);
+		close();
 	}
 
 	public void deleteAll() {
 		Log.i(TAG, "Records deleted");
+		open();
 		database.delete(MySQLiteHelper.TABLE_BATTERY_RECORDS, null, null);
+		close();
 	}
 
-	public List<BatteryRecord> getRecordsForDateRange(Date start, Date end) {
+	public List<BatteryRecord> getRecordsForDateRange(final Date start,
+			final Date end) {
 
 		Log.i(TAG, "Get records for " + ISO8601FORMAT.format(start) + " - "
 				+ ISO8601FORMAT.format(end));
-		List<BatteryRecord> records = new ArrayList<BatteryRecord>();
 
+		List<BatteryRecord> records = new ArrayList<BatteryRecord>();
+		open();
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_BATTERY_RECORDS,
 				allColumns, MySQLiteHelper.COLUMN_TIME + " BETWEEN \""
 						+ ISO8601FORMAT.format(start) + "\" AND \""
@@ -87,12 +99,14 @@ public class BatteryRecordsDataSource {
 		}
 		// make sure to close the cursor
 		cursor.close();
+		close();
+
 		return records;
 	}
 
 	public List<BatteryRecord> getAllRecords() {
 		List<BatteryRecord> records = new ArrayList<BatteryRecord>();
-
+		open();
 		Cursor cursor = database.query(MySQLiteHelper.TABLE_BATTERY_RECORDS,
 				allColumns, null, null, null, null, null);
 
@@ -104,6 +118,7 @@ public class BatteryRecordsDataSource {
 		}
 		// make sure to close the cursor
 		cursor.close();
+		close();
 		return records;
 	}
 
