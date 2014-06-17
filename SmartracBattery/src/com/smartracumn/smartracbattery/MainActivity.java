@@ -402,6 +402,8 @@ public class MainActivity extends Activity {
 				}
 				FileWriter fw = new FileWriter(params[0].getPath());
 				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write("Time, Percentage, State");
+				bw.write(System.getProperty("line.separator"));
 				for (BatteryRecord record : recordList) {
 					bw.write(record.toString());
 					bw.write(System.getProperty("line.separator"));
