@@ -39,7 +39,7 @@ public class BatteryRecord {
 
 	@Override
 	public String toString() {
-		return ISO8601FORMAT.format(this.time) + ", " + this.percentage + "%, "
+		return ISO8601FORMAT.format(this.time) + "," + this.percentage + "%,"
 				+ (this.isCharging ? "plugged" : "unplugged");
 	}
 
