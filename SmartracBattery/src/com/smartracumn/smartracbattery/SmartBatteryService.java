@@ -16,7 +16,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class SmartBatteryService extends Service {
-
 	private final String TAG = getClass().getSimpleName();
 	private final IBinder mBinder = new MyBinder();
 	private ArrayList<BatteryRecord> records = new ArrayList<BatteryRecord>();
@@ -45,6 +44,7 @@ public class SmartBatteryService extends Service {
 	public void onCreate() {
 		super.onCreate();
 
+		Log.i(TAG, "on create");
 		dataSource = new BatteryRecordsDataSource(this);
 
 		this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(
@@ -53,6 +53,7 @@ public class SmartBatteryService extends Service {
 
 	@Override
 	public void onDestroy() {
+		Log.i(TAG, "on destroy");
 		super.onDestroy();
 		this.unregisterReceiver(mBatInfoReceiver);
 	}

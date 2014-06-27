@@ -24,6 +24,7 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -141,6 +142,17 @@ public class MainActivity extends Activity {
 						}).setNegativeButton(R.string.no, null).show();
 	}
 
+	private String imei;
+
+	private String getImei() {
+		if (imei == null) {
+			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+			imei = telephonyManager.getDeviceId().toString();
+		}
+
+		return imei;
+	}
+
 	private void openFileBrowser() {
 		DirectoryChooserDialog directoryChooserDialog = new DirectoryChooserDialog(
 				MainActivity.this,
@@ -150,8 +162,9 @@ public class MainActivity extends Activity {
 					public void onChosenDir(String chosenDir) {
 						File dir = new File(chosenDir);
 
-						File file = new File(dir, "smartracBattery-"
-								+ dateFormat.format(selectedDate) + ".txt");
+						File file = new File(dir, getImei() + "&"
+								+ dateFormat.format(selectedDate)
+								+ "&Battery.txt");
 
 						if (!file.exists()) {
 							try {
@@ -402,7 +415,7 @@ public class MainActivity extends Activity {
 				}
 				FileWriter fw = new FileWriter(params[0].getPath());
 				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write("Time,Percentage,State");
+				bw.write("Date, Time, Percentage, State");
 				bw.write(System.getProperty("line.separator"));
 				for (BatteryRecord record : recordList) {
 					bw.write(record.toString());
