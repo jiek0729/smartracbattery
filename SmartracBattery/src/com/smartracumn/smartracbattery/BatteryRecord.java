@@ -11,8 +11,8 @@ public class BatteryRecord {
 	private int percentage;
 	private boolean isCharging;
 	private GraphViewData graphViewData;
-	private final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
+	private final SimpleDateFormat EXPORTDATETIMEFORMAT = new SimpleDateFormat(
+			"yyyy-MM-dd, HH:mm:ss");
 
 	public BatteryRecord(int id, Date time, int percentage, boolean isCharging) {
 		this.id = id;
@@ -39,8 +39,8 @@ public class BatteryRecord {
 
 	@Override
 	public String toString() {
-		return ISO8601FORMAT.format(this.time) + ": " + this.percentage + "% "
-				+ (this.isCharging ? "plugged" : "unplugged");
+		return EXPORTDATETIMEFORMAT.format(this.time) + ", " + this.percentage
+				+ "%, " + (this.isCharging ? "plugged" : "unplugged");
 	}
 
 	public GraphViewData getGraphViewData() {
